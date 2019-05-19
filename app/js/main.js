@@ -22,7 +22,7 @@ function renderMap(dataPoints) {
     radius: 15,
     minOpacity: 0.1,
     blur: 5,
-    gradient: { 0: 'white' }
+    gradient: { 0: 'red' }
   });
 
   heatMapLayer.addTo(map);
@@ -40,6 +40,21 @@ function renderMap(dataPoints) {
   };
 
   L.control.layers({}, mapLayers, { collapsed: false }).addTo(map);
+
+  var legend = L.control({ position: 'bottomleft' });
+
+  legend.onAdd = function(map) {
+    var div = L.DomUtil.create('div', 'legend');
+    div.innerHTML +=
+      '<i style="background: #33089f"></i><span>Top 100</span><br>';
+    div.innerHTML +=
+      '<i style="background: #FFBA08"></i><span>Top 500</span><br>';
+    div.innerHTML += '<i style="background: #DB162F"></i><span>Rest</span><br>';
+
+    return div;
+  };
+
+  legend.addTo(map);
 }
 
 asyncParseCSV(renderMap);

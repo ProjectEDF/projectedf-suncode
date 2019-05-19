@@ -22,27 +22,25 @@ function parseDataPoints(data) {
 }
 
 function createPoints(geoJson, dataPoints) {
-  var i = 0;
-  var multiplier = 20;
+  var i = dataPoints.length - 1;
 
   return L.geoJSON(geoJson, {
     pointToLayer: function(feature, latlng) {
       var receptivity = dataPoints[i][2];
       var rank = i;
-      var radius = ((receptivity * 40) / 9000) * multiplier;
       var color;
 
-      if (rank < 100) {
+      if (rank > 9000) {
         color = '#DB162F';
-      } else if (rank < 500 && rank > 100) {
+      } else if (rank < 9000 && rank > 8500) {
         color = '#FFBA08';
       } else {
         color = '#33089f';
       }
 
-      i++;
+      i--;
       return L.circleMarker(latlng, {
-        radius,
+        radius: 1,
         weight: 0,
         fillColor: color,
         fillOpacity: 0.8

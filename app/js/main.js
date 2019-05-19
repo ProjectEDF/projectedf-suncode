@@ -2,7 +2,7 @@ function renderMap(dataPoints) {
   var map = L.map('map', {
     center: [39.8283, -98.5795],
     zoom: 5,
-    minZoom: 4,
+    minZoom: 1,
     maxZoom: 18
   });
 
@@ -17,24 +17,29 @@ function renderMap(dataPoints) {
     }
   ).addTo(map);
 
-  L.heatLayer(dataPoints, {
-    // radius: 15,
-    // blur: 5,
-    // gradient: { 0: 'red', 0.33: 'red', 0.5: 'red', 0.66: 'red', 1: 'red' }
-  }).addTo(map);
+  var heatMapLayer = L.heatLayer(dataPoints, {
+    max: 9000,
+    radius: 15,
+    minOpacity: 0.1,
+    blur: 5,
+    gradient: { 0: 'white' }
+  });
+
+  heatMapLayer.addTo(map);
 
   L.Control.geocoder().addTo(map);
   new L.Control.Geocoder.Nominatim();
   L.Control.Geocoder.nominatim();
 
   var geojson_list = createGeoJson(dataPoints);
-  var points = createPoints(geojson_list);
+  var pointsLayer = createPoints(geojson_list, dataPoints);
 
-  var points_layer = {
-    'Display Points': points
+  var mapLayers = {
+    'Display Points': pointsLayer,
+    'Heat Map': heatMapLayer
   };
 
-  L.control.layers({}, points_layer, { collapsed: false }).addTo(map);
+  L.control.layers({}, mapLayers, { collapsed: false }).addTo(map);
 }
 
 asyncParseCSV(renderMap);

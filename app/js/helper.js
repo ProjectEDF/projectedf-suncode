@@ -1,5 +1,5 @@
 function asyncParseCSV(callback) {
-  d3.csv('../app/data/data.csv')
+  d3.csv('../app/data/ranking_receptivity_lat_lng.csv')
     .then(parseDataPoints)
     .then(callback)
     .catch(function(e) {
@@ -12,26 +12,41 @@ function parseDataPoints(data) {
 
   data.forEach(function(d) {
     dataPoints.push([
-      parseFloat(d.Latitude),
-      parseFloat(d.Longitude),
-      parseFloat(d.receptivity) // || 0.0
+      parseFloat(d.LAT),
+      parseFloat(d.LNG),
+      parseFloat(d.receptivity) || 0.0
     ]);
   });
 
   return dataPoints;
 }
 
-function createPoints(geoJson, color) {
-  var geojsonMarkerOptions = {
-    radius: 2,
-    weight: 0,
-    fillColor: '#DB162F',
-    fillOpacity: 0.8
-  };
+function createPoints(geoJson, dataPoints) {
+  var i = 0;
+  var multiplier = 20;
 
   return L.geoJSON(geoJson, {
     pointToLayer: function(feature, latlng) {
-      return L.circleMarker(latlng, geojsonMarkerOptions);
+      var receptivity = dataPoints[i][2];
+      var rank = i;
+      var radius = ((receptivity * 40) / 9000) * multiplier;
+      var color;
+
+      if (rank < 100) {
+        color = '#DB162F';
+      } else if (rank < 500 && rank > 100) {
+        color = '#FFBA08';
+      } else {
+        color = '#33089f';
+      }
+
+      i++;
+      return L.circleMarker(latlng, {
+        radius,
+        weight: 0,
+        fillColor: color,
+        fillOpacity: 0.8
+      });
     }
   });
 }
@@ -42,7 +57,7 @@ function createGeoJson(data) {
   data.forEach(function(d) {
     geojson = {
       type: 'Point',
-      coordinates: [d[0], d[1]]
+      coordinates: [d[1], d[0]]
     };
 
     geojson_list.push(geojson);
